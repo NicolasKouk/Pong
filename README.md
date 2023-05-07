@@ -6,3 +6,6 @@ the left or right side of the screen. They can compete against
 another player controlling a second paddle on the opposing side. 
 Players use the paddles to hit a ball back and forth. Points are 
 earned when one fails to return the ball to the other.
+
+Pong 2.3 What's new?
+There is a 2-second pause after a goal
