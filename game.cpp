@@ -17,7 +17,7 @@ enum PlayingMode {
 	UNLIMITED
 };
 u32 color1 = 0xff0000, color2 = 0x0031ff;
-PlayingMode pmode = FIRST_TO_10;
+PlayingMode pmode;
 
 PlayingMode int_to_pmode(int n) {
 	if (n == 0) return FIRST_TO_5;
@@ -45,8 +45,6 @@ int color_to_int(u32 c) {
 	if (c == 0x00cccc) return 4;
 	if (c == 0xffffff) return 5;
 }
-
-//FILE* myfile;
 
 internal void
 simulate_player(float *p, float *dp, float ddp, float dt) {
@@ -90,8 +88,9 @@ bool enemy_is_ai;
 
 bool typing = true;
 
+FILE* myfile;
 int gs, ga;
-string name = "";
+string name, name2;
 
 string written_text = "";
 internal void
@@ -359,14 +358,16 @@ simulate_game(Input* input, float dt) {
 					hot_button = 0;
 				}
 
-/*				else {
+				else {
 					current_gamemode = GM_LEADERBOARD;
 
-					myfile = fopen("leaderboard.txt", "r");
-					fscanf(myfile, "%d %d", &gs, &ga);
-					fscanf(myfile, "%s", &name);
-					fclose(myfile);
-				}*/
+					// reading file 
+//					myfile = fopen("leaderboard.txt", "r");
+//					fscanf(myfile, "%d %d", &gs, &ga);
+//					fscanf(myfile, "%s", &name);
+					
+//					fclose(myfile);
+				}
 			}
 		}
 
@@ -546,7 +547,7 @@ simulate_game(Input* input, float dt) {
 				current_gamemode = GM_MENU;
 				color1 = int_to_color(hotbutton1);
 				color2 = int_to_color(hotbutton2);
-				pmode = int_to_pmode(pmode);
+				pmode = int_to_pmode(hotbutton3);
 			}
 
 		} break;
@@ -663,11 +664,11 @@ simulate_game(Input* input, float dt) {
 			else {
 				dt_menu = 0;
 				if (!hot_button) current_gamemode = GM_GAMEPLAY;
-/*				else if (enemy_is_ai) {
-					typing = true;
-					written_text = "";
-					current_gamemode = GM_TYPING;
-				}*/
+				/*				else if (enemy_is_ai) {
+									typing = true;
+									written_text = "";
+									current_gamemode = GM_TYPING;
+								}*/
 				else {
 					current_gamemode = GM_MENU;
 					ball_dp_y = 0;
@@ -706,10 +707,6 @@ simulate_game(Input* input, float dt) {
 	}
 
 	else if (current_gamemode == GM_GAMEOVER) {
-		draw_text("MADE BY CAPTAIN KOUK", -30, -40, 0.5, 0x00cccc);
-		draw_text("GAME OVER", -20, 0, 0.5, 0x00cccc);
-
-		//Render
 		draw_rect(-45.5, 48, 45.5, 3, 0xfffe00);
 		draw_rect(-45.5, -48, 45.5, 3, 0xff0000);
 		draw_rect(45.5, 48, 45.5, 3, 0x2cff00);
@@ -717,13 +714,58 @@ simulate_game(Input* input, float dt) {
 		draw_rect(-88, 22.5, 3, 22.5, 0xfffe00);
 		draw_rect(-88, -22.5, 3, 22.5, 0xff0000);
 		draw_rect(88, 22.5, 3, 22.5, 0x2cff00);
-		draw_rect(88, -22.5, 3, 22.5, 0x0031ff);
+		draw_rect(88, -22.5, 3, 22.5, 0x0031ff); // arena
 
+		draw_rect(ball_p_x, ball_p_y, 1, 1, 0xffffff); // ball
 		draw_rect(80, player_1_p, player_half_size_x, player_half_size_y, color1);
-		draw_rect(-80, player_2_p, player_half_size_x, player_half_size_y, color2);
-
+		draw_rect(-80, player_2_p, player_half_size_x, player_half_size_y, color2); // players
 		draw_number(player_1_score, 13, 40, 0x00cccc);
-		draw_number(player_2_score, -13, 40, 0x00cccc);
+		draw_number(player_2_score, -13, 40, 0x00cccc); // scores
+
+		draw_rect(0, -3, 70, 36, 0x060914);
+		draw_text("GAME OVER", -25, 15, 1, 0x00cccc);
+
+		if (pressed(BUTTON_ENTER)) {
+			dt_menu += dt;
+		}
+
+		draw_text("MAIN MENU", -27, -23, 1, 0xff0000);
+
+		if (dt_menu > 0) {
+			if (dt_menu < .2) {
+				draw_rect(0, -26, 39, 4.5, 0xff0000);
+				draw_text("MAIN MENU", -27, -23, 1, 0xFF4848);
+
+				dt_menu += dt;
+			}
+			else {
+				dt_menu = 0;
+				/*				else if (enemy_is_ai) {
+									typing = true;
+									written_text = "";
+									current_gamemode = GM_TYPING;
+								}*/
+				current_gamemode = GM_MENU;
+				ball_dp_y = 0;
+				ball_p_x = 0;
+				ball_p_y = 0;
+
+			}
+		}
+
+		draw_rect(0, -21.5, 39, .2, 0xff0000);
+		draw_rect(0, -30.5, 39, .2, 0xff0000);
+		draw_rect(0, -21.1, 39.5, .2, 0xffffff);
+		draw_rect(0, -30.9, 39.5, .2, 0xffffff);
+		draw_rect(0, -20.7, 40, .2, 0xff0000);
+		draw_rect(0, -31.3, 40, .2, 0xff0000);
+
+		draw_rect(-39, -26, .2, 4.5, 0xff0000);
+		draw_rect(39, -26, .2, 4.5, 0xff0000);
+		draw_rect(-39.4, -26, .2, 5, 0xffffff);
+		draw_rect(39.4, -26, .2, 5, 0xffffff);
+		draw_rect(-39.8, -26, .2, 5.5, 0xff0000);
+		draw_rect(39.8, -26, .2, 5.5, 0xff0000);
 
 	}
 
@@ -757,10 +799,11 @@ simulate_game(Input* input, float dt) {
 		//word += "A";
 		//draw_text2(word, -30, 10, 1, 0xffffff);
 
-		string name = "NICOLAS";
-//		draw_text2(name, -30, 0, 1, 0xffffff);
-		draw_number(gs, 0, 0, 0xffffff);
-		draw_number(ga, 10, 0, 0xffffff);
+//		string name = "NICOLAS";
+//		draw_text2(name, -30, -10, 1, 0xffffff);
+//		draw_text2(name2, -30, -20, 1, 0xffffff);
+//		draw_number(gs, 0, 0, 0xffffff);
+//		draw_number(ga, 10, 0, 0xffffff);
 	}
 
 }
